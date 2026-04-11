@@ -47,4 +47,28 @@ dotnet test
 - Swashbuckle for OpenAPI/Swagger
 - xUnit + Moq for testing
 - Docker + Docker Compose
-- GitHub Actions CI
+- GitHub Actions CI (see below)
+
+## CI/CD
+
+Add a `.github/workflows/ci.yml` to enable GitHub Actions:
+
+```yaml
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - run: dotnet restore
+      - run: dotnet build --no-restore
+      - run: dotnet test --no-build --verbosity normal
+```
