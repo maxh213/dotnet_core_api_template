@@ -1,7 +1,6 @@
-namespace Api.DataAccess
+namespace Api.DataAccess;
+
+public class ConnectionStrings
 {
-    public class ConnectionStrings
-    {
-        public string Server { get; set; } = string.Empty;
-    }
+    public string DefaultConnection { get; set; } = string.Empty;
 }

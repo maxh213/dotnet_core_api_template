@@ -1,14 +1,26 @@
 using Api.DataAccess;
+using Api.DataAccess.Repositories;
 using Api.DataAccess.Repositories.Database;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure services
 builder.Services.Configure<ConnectionStrings>(builder.Configuration.GetSection("ConnectionStrings"));
-builder.Services.AddScoped<PostgresRepository>();
+builder.Services.AddScoped<IUserRepository, PostgresRepository>();
 
 builder.Services.AddControllers();
+builder.Services.AddHealthChecks();
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins(
+                builder.Configuration.GetValue<string>("AllowedOrigins") ?? "http://localhost:5100")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -28,6 +40,8 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
 }
 
+app.UseCors();
+
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
@@ -36,5 +50,6 @@ app.UseSwaggerUI(c =>
 });
 
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 app.Run();

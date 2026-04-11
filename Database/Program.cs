@@ -8,14 +8,14 @@ var builder = new ConfigurationBuilder()
 
 var configuration = builder.Build();
 
-Console.WriteLine(configuration.GetConnectionString("SqlServer"));
+var connectionString = configuration.GetConnectionString("DefaultConnection");
+Console.WriteLine($"Migrating database: {connectionString}");
 
-var connectionString = configuration.GetConnectionString("SqlServer");
-EnsureDatabase.For.SqlDatabase(connectionString);
+EnsureDatabase.For.PostgresqlDatabase(connectionString);
 
 var upgrader =
     DeployChanges.To
-        .SqlDatabase(connectionString)
+        .PostgresqlDatabase(connectionString)
         .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly())
         .LogToConsole()
         .Build();

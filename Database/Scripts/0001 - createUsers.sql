@@ -1,9 +1,9 @@
-create table users (
-	Id SERIAL,
-	FirstName varchar,
-	LastName varchar,
-	Email varchar,
-	SignUpDate datetime DEFAULT now()
+CREATE TABLE Users (
+    Id SERIAL PRIMARY KEY,
+    FirstName VARCHAR(200),
+    LastName VARCHAR(200),
+    Email VARCHAR(200),
+    SignUpDate TIMESTAMP DEFAULT NOW()
 );
 
 

@@ -1,40 +1,32 @@
 using Dapper;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using Api.DataAccess.Models;
+using Api.DataAccess.Repositories;
 using Microsoft.Extensions.Options;
 
-namespace Api.DataAccess.Repositories.Database
+namespace Api.DataAccess.Repositories.Database;
+
+public class PostgresRepository : IUserRepository
 {
-    public class PostgresRepository
+    private readonly string _connectionString;
+
+    public PostgresRepository(IOptions<ConnectionStrings> connectionStrings)
     {
-        private readonly string _connectionString;
-        private readonly string _useDatabase = "use imnotlovinit ";
+        _connectionString = connectionStrings?.Value.DefaultConnection ?? string.Empty;
+    }
 
-        public PostgresRepository(IOptions<ConnectionStrings> connectionStrings)
-        {
-            _connectionString = connectionStrings?.Value.Server ?? string.Empty;
-        }
+    public async Task<List<User>> GetUsersAsync()
+    {
+        await using var connection = new NpgsqlConnection(_connectionString);
+        var users = await connection.QueryAsync<User>("SELECT * FROM Users");
+        return users.ToList();
+    }
 
-        public virtual List<User> GetUsers()
-        {
-            var queryString = _useDatabase + @"select * from Users";
-
-            using var connection = new SqlConnection(_connectionString);
-            connection.Open();
-            var users = connection.Query<User>(queryString).ToList();
-            return users;
-        }
-
-        public void InsertNewUser(User user)
-        {
-            using var connection = new SqlConnection(_connectionString);
-            connection.Open();
-            var queryString = _useDatabase +
-                @"
-                INSERT INTO Users (FirstName, LastName, Email)
-                VALUES (@FirstName, @LastName, @Email)
-                ";
-            connection.Execute(queryString, user);
-        }
+    public async Task InsertNewUserAsync(User user)
+    {
+        await using var connection = new NpgsqlConnection(_connectionString);
+        await connection.ExecuteAsync(
+            "INSERT INTO Users (FirstName, LastName, Email) VALUES (@FirstName, @LastName, @Email)",
+            user);
     }
 }
