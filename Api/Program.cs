@@ -1,19 +1,40 @@
-﻿using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
+using Api.DataAccess;
+using Api.DataAccess.Repositories.Database;
+using Microsoft.OpenApi.Models;
 
-namespace Api
+var builder = WebApplication.CreateBuilder(args);
+
+// Configure services
+builder.Services.Configure<ConnectionStrings>(builder.Configuration.GetSection("ConnectionStrings"));
+builder.Services.AddScoped<PostgresRepository>();
+
+builder.Services.AddControllers();
+
+builder.Services.AddSwaggerGen(c =>
 {
-    class Program
+    c.SwaggerDoc("v1", new OpenApiInfo
     {
-       
-        public static void Main(string[] args)
-        {
-            CreateWebHostBuilder(args).Build().Run();
-        }
+        Title = "ASP.NET Core Web API",
+        Version = "v1"
+    });
+});
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>()
-                .UseUrls("http://*:60000");
-    }    
+builder.WebHost.UseUrls("http://*:60000");
+
+var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
 }
+
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API v1");
+    c.RoutePrefix = string.Empty;
+});
+
+app.MapControllers();
+
+app.Run();
