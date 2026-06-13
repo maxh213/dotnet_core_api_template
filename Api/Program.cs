@@ -1,19 +1,42 @@
-﻿using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
+using Api.DataAccess;
+using Api.DataAccess.Repositories;
+using Api.DataAccess.Repositories.Database;
+using Scalar.AspNetCore;
 
-namespace Api
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<ConnectionStrings>(builder.Configuration.GetSection("ConnectionStrings"));
+builder.Services.AddScoped<IUserRepository, PostgresRepository>();
+
+builder.Services.AddControllers();
+builder.Services.AddHealthChecks();
+builder.Services.AddOpenApi();
+
+builder.Services.AddCors(options =>
 {
-    class Program
+    options.AddDefaultPolicy(policy =>
     {
-       
-        public static void Main(string[] args)
-        {
-            CreateWebHostBuilder(args).Build().Run();
-        }
+        policy.WithOrigins(
+                builder.Configuration.GetValue<string>("AllowedOrigins") ?? "http://localhost:5100")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>()
-                .UseUrls("http://*:60000");
-    }    
+builder.WebHost.UseUrls("http://*:60000");
+
+var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
 }
+
+app.UseCors();
+app.MapOpenApi();
+app.MapScalarApiReference();
+
+app.MapControllers();
+app.MapHealthChecks("/health");
+
+app.Run();

@@ -1,28 +1,24 @@
-using System;
-using System.Collections.Generic;
 using Api.DataAccess.Models;
-using Api.DataAccess.Repositories.Database;
+using Api.DataAccess.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Api.Controllers
-{
-    #region snippet_DfeController
-    [Produces("application/json")]
-    [Route("api/v1/Users")]
-    public class UserController : ControllerBase
-    {
-        private readonly PostgresRepository _postgresRepository;
-        public UserController(PostgresRepository postgresRepository)
-        {
-            _postgresRepository = postgresRepository;
-        }  
+namespace Api.Controllers;
 
-        [HttpGet("/all")]
-        public List<User> GetUsers()
-        {  
-            var users = _postgresRepository.GetUsers();
-            return users;
-        }
+[ApiController]
+[Produces("application/json")]
+[Route("api/v1/Users")]
+public class UserController : ControllerBase
+{
+    private readonly IUserRepository _userRepository;
+
+    public UserController(IUserRepository userRepository)
+    {
+        _userRepository = userRepository;
     }
-    #endregion
+
+    [HttpGet("/all")]
+    public async Task<List<User>> GetUsers()
+    {
+        return await _userRepository.GetUsersAsync();
+    }
 }

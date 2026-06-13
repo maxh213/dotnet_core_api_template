@@ -1,11 +1,6 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+namespace Api.DataAccess;
 
-namespace Api.DataAccess
+public class ConnectionStrings
 {
-    public class ConnectionStrings
-    {
-        public string Server { get; set; }
-    }
+    public string DefaultConnection { get; set; } = string.Empty;
 }
