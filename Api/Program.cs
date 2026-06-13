@@ -1,7 +1,7 @@
 using Api.DataAccess;
 using Api.DataAccess.Repositories;
 using Api.DataAccess.Repositories.Database;
-using Microsoft.OpenApi.Models;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +10,7 @@ builder.Services.AddScoped<IUserRepository, PostgresRepository>();
 
 builder.Services.AddControllers();
 builder.Services.AddHealthChecks();
+builder.Services.AddOpenApi();
 
 builder.Services.AddCors(options =>
 {
@@ -19,15 +20,6 @@ builder.Services.AddCors(options =>
                 builder.Configuration.GetValue<string>("AllowedOrigins") ?? "http://localhost:5100")
             .AllowAnyHeader()
             .AllowAnyMethod();
-    });
-});
-
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "ASP.NET Core Web API",
-        Version = "v1"
     });
 });
 
@@ -41,13 +33,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors();
-
-app.UseSwagger();
-app.UseSwaggerUI(c =>
-{
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API v1");
-    c.RoutePrefix = string.Empty;
-});
+app.MapOpenApi();
+app.MapScalarApiReference();
 
 app.MapControllers();
 app.MapHealthChecks("/health");

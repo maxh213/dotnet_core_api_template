@@ -5,7 +5,7 @@ RUN dotnet restore Api/Api.csproj
 COPY Api/ Api/
 RUN dotnet publish Api/Api.csproj -c Release -o /app/publish
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-noble-chiseled
 WORKDIR /app
 COPY --from=build /app/publish .
 EXPOSE 60000

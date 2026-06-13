@@ -6,10 +6,10 @@ My go to setup for backends circa apr 2026
 
 | Project | Description |
 |---------|-------------|
-| **Api** | ASP.NET Core Web API with Swagger, health checks, and Dapper/PostgreSQL |
+| **Api** | ASP.NET Core Web API with OpenAPI/Scalar, health checks, and Dapper/PostgreSQL |
 | **Ui** | Blazor Web App (Server) that consumes the API |
 | **Database** | DbUp migrations runner for PostgreSQL |
-| **Api.Tests** | xUnit tests for the API |
+| **Api.Tests** | xUnit + NSubstitute tests for the API |
 
 ## Quick start
 
@@ -34,7 +34,8 @@ dotnet test
 
 | Service | URL |
 |---------|-----|
-| API (Swagger) | http://localhost:60000 |
+| API docs (Scalar) | http://localhost:60000/scalar/v1 |
+| OpenAPI spec | http://localhost:60000/openapi/v1.json |
 | Blazor UI | http://localhost:5100 |
 | Health check | http://localhost:60000/health |
 
@@ -42,11 +43,11 @@ dotnet test
 
 - .NET 10 (LTS)
 - ASP.NET Core Web API + Blazor Server
-- PostgreSQL + Dapper
+- PostgreSQL 18 + Dapper
 - DbUp for migrations
-- Swashbuckle for OpenAPI/Swagger
-- xUnit + Moq for testing
-- Docker + Docker Compose
+- Microsoft.AspNetCore.OpenApi + Scalar for API docs
+- xUnit + NSubstitute for testing
+- Docker (chiseled images) + Docker Compose
 - GitHub Actions CI (see below)
 
 ## CI/CD
@@ -64,8 +65,8 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "10.0.x"
       - run: dotnet restore

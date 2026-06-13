@@ -1,19 +1,19 @@
 using Api.Controllers;
 using Api.DataAccess.Models;
 using Api.DataAccess.Repositories;
-using Moq;
+using NSubstitute;
 
 namespace Api.Tests;
 
 public class UserControllerTests
 {
-    private readonly Mock<IUserRepository> _mockRepository;
+    private readonly IUserRepository _repository;
     private readonly UserController _controller;
 
     public UserControllerTests()
     {
-        _mockRepository = new Mock<IUserRepository>();
-        _controller = new UserController(_mockRepository.Object);
+        _repository = Substitute.For<IUserRepository>();
+        _controller = new UserController(_repository);
     }
 
     [Fact]
@@ -24,7 +24,7 @@ public class UserControllerTests
             new() { Id = "1", FirstName = "John", LastName = "Doe", Email = "john@example.com" },
             new() { Id = "2", FirstName = "Jane", LastName = "Smith", Email = "jane@example.com" }
         };
-        _mockRepository.Setup(r => r.GetUsersAsync()).ReturnsAsync(expectedUsers);
+        _repository.GetUsersAsync().Returns(expectedUsers);
 
         var result = await _controller.GetUsers();
 
@@ -36,7 +36,7 @@ public class UserControllerTests
     [Fact]
     public async Task GetUsers_ReturnsEmptyList_WhenNoUsers()
     {
-        _mockRepository.Setup(r => r.GetUsersAsync()).ReturnsAsync([]);
+        _repository.GetUsersAsync().Returns(new List<User>());
 
         var result = await _controller.GetUsers();
 
